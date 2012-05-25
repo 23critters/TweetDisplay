@@ -10,6 +10,11 @@
 
  requires:
  - core/1.4: [Class, Object, Element, Request.JSONP]
+ 
+ 
+ provides: [TweetDisplay]
+
+ ...
  */
 
 var TweetDisplay = new Class({
