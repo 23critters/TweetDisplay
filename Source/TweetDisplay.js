@@ -1,21 +1,28 @@
 /*
- ---
- description: List Tweets for a certain Twitter username
+---
 
- license: MIT-style
+script: TweetDisplay.js
 
- authors:
- - Thomas Kunambi
- - kunambi
+name: TweetDisplay
 
- requires:
- - core/1.4: [Class, Object, Element, Request.JSONP]
- 
- 
- provides: [TweetDisplay]
+description: List Tweets for a certain Twitter username.
 
- ...
- */
+license: MIT-style license
+
+authors:
+  - Thomas Kunambi
+  - kunambi
+
+requires:
+  - Core/Class
+  - Core/Object
+  - Core/Element
+  - More/Request.JSONP
+
+provides: [TweetDisplay]
+
+...
+*/
 
 var TweetDisplay = new Class({
     Implements: Options,
