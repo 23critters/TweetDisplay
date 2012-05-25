@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Tweet Display</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.4/mootools-yui-compressed.js"></script>
+<script type="text/javascript" src="Request.JSONP.js"></script>
+<script type="text/javascript" src="TweetDisplay.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+window.addEvent("domready", function() {
+	new TweetDisplay({
+		count: 4,
+		element: "listtweet",
+		username: "23critters",
+		template: "TweetDisplay.html"
+	});
+});
+//]]>
+</script>
+</head>
+<body>
+
+	<div id="listtweet"></div>
+
+</body>
+</html>
