@@ -4,6 +4,7 @@
 <title>Tweet Display</title>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.4/mootools-yui-compressed.js"></script>
 <script type="text/javascript" src="https://raw.github.com/mootools/mootools-more/master/Source/Request/Request.JSONP.js"></script>
+<script type="text/javascript" src="https://raw.github.com/mootools/mootools-more/master/Source/Types/Date.js"></script>
 <script type="text/javascript" src="TweetDisplay.js"></script>
 <script type="text/javascript">
 //<![CDATA[
@@ -12,6 +13,10 @@ window.addEvent("domready", function() {
 		count: 4,
 		element: "listtweet",
 		username: "23critters",
+		actions: {
+			"linkify": "text",
+			"formatdate": "created_at"
+		},
 		template: "TweetDisplay.html"
 	});
 });

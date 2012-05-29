@@ -5,7 +5,7 @@ script: TweetDisplay.js
 
 name: TweetDisplay
 
-description: List Tweets for a certain Twitter username.
+description: List Tweets for a certain Twitter username and parses them via a HTML template.
 
 license: MIT-style license
 
@@ -18,6 +18,7 @@ requires:
   - Core/Object
   - Core/Element
   - More/Request.JSONP
+  - More/Date
 
 provides: [TweetDisplay]
 
@@ -28,6 +29,8 @@ var TweetDisplay = new Class({
     Implements: Options,
     options: {
         element: null,
+        actions: {},
+        dateformat: "%Y-%m-%d %H:%M:%S",
         count: 5,
         template: "TweetDisplay.html",
         username: "23critters"
@@ -68,8 +71,7 @@ var TweetDisplay = new Class({
                     new Request({
                         url: this.options.template,
                         onSuccess: function(html) {
-                            console.log(jsonp);
-                            this.parse(html, jsonp);
+                            this._parse(html, jsonp);
                         }.bind(this)
                     }).send();
                 }.bind(this)
@@ -77,14 +79,37 @@ var TweetDisplay = new Class({
 
         TwitterJSONP.send(oQuery);
     },
-    parse: function(template, jsonp) {
+    /**
+    @protected
+    */
+    _parse: function(template, jsonp) {
         var reTag = /[{]{2}\s*([a-zA-Z0-9._\-]+)\s*[}]{2}/mig,
             oUL = new Element("ul");
 
-        Object.each(jsonp, function(item) {
-            var sParsedHTML = template.substitute(item, reTag);
+        Object.each(jsonp, function(oTweet) {
+            oTweet = this._doAction(oTweet);
+            var sParsedHTML = template.substitute(oTweet, reTag);
             oUL.set("html", oUL.get("html") + sParsedHTML);
-        });
+        }, this);
         document.id(this.element).adopt(oUL);
+    },
+    _doAction: function(oObj) {
+        Object.each(this.options.actions, function(key, action) {
+            if (typeOf(this[action]) === "function") {
+                oObj[key] = this[action](oObj[key]);
+            }
+        }, this);
+        return oObj;
+    },
+    linkify: function(sText) {
+        sText = sText.replace(/(^|\s)@(\w+)/g, '$1@<a href="http://www.twitter.com/$2">$2</a>');
+        sText = sText.replace(/(^|\s)#(\w+)/g, '$1#<a href="http://www.twitter.com/search/$2">$2</a>');
+        sText = sText.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" rel="external">$1</a>');
+        return sText;
+    },
+    formatdate: function(sDate, sFormat) {
+        var sNewFormat = sFormat||this.options.dateformat,
+            dDate = Date.parse(sDate);
+        return dDate.format(sNewFormat);
     }
 });
