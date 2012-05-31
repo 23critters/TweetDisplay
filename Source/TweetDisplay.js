@@ -102,9 +102,9 @@ var TweetDisplay = new Class({
         return oObj;
     },
     linkify: function(sText) {
+        sText = sText.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" rel="external">$1</a>');
         sText = sText.replace(/(^|\s)@(\w+)/g, '$1@<a href="http://www.twitter.com/$2">$2</a>');
         sText = sText.replace(/(^|\s)#(\w+)/g, '$1#<a href="http://www.twitter.com/search/$2">$2</a>');
-        sText = sText.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" rel="external">$1</a>');
         return sText;
     },
     formatdate: function(sDate, sFormat) {
