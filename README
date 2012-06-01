@@ -30,12 +30,13 @@ CSS selector to style the active navigation anchor, eg:
 
 Options
 -----------------
-    element: (string||object) reference to div dom element container. if passing a string, supply it's id
-    count: (integer) how many tweets to pull | default: 5
-    template: (string) path to the template containing the HTML | default: "TweetDisplay.html"
-    username: (string) username of user from who to fetch information from | default: "23critters"
-	actions: (object) a set of "instructions" if you want to pass information from Twitter via different parsers | default: {"linkify":"text", "formatdate":"created_at"}
-	dateformat: (string) a model over how to format the printed date, more information at http://mootools.net/docs/more/Types/Date#Date:format | default: "%Y-%m-%d %H:%M:%S"
+    element: (string||object) Reference to div dom element container. if passing a string, supply it's id
+    count: (integer) How many tweets to pull | default: 5
+    template: (string) Path to the template containing the HTML | default: "TweetDisplay.html"
+    username: (string) Username of user from who to fetch information from | default: "23critters"
+	actions: (object) A set of "instructions" if you want to pass information from Twitter via different parsers | default: {"linkify":"text", "formatdate":"created_at"}
+	dateformat: (string) A model over how to format the printed date, more information at http://mootools.net/docs/more/Types/Date#Date:format | default: "%Y-%m-%d %H:%M:%S"
+	locale: (string) When you parse the date, define which locale you'd like to use (requires More/Locale/Locale). More information at http://mootools.net/docs/more/Locale/Date
 
 
 Methods
@@ -43,7 +44,8 @@ Methods
 
 The following methods are availible publicly:
 
-    None
+    linkify: takes string and returns http://, ftp://, file:// clickable. Also @usernames and #tags
+	formatdate: formats date according to specification at http://mootools.net/docs/more/Types/Date#Date:format
 
 
 Known bugs
@@ -51,11 +53,16 @@ Known bugs
 
 Known bugs that hopefully will be squashed in future releases
 
-	* Unable to show any information about the user
+	* #1 Unable to show any information about the user or any other nested objects
 	
 
 Notes
 -----------------
+Version 0.9.9.1
+
+	* Added ability to format date according to chosen Locale
+	* Note: I will increment version number to 1.0 when I've resolved bug #1
+
 Version 0.9.9
 
 	* Added the ability to send information from the JSON/P response to various methods, at this time there's only "linkify" and "formatdate"

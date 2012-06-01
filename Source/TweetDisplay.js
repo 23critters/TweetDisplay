@@ -30,6 +30,7 @@ var TweetDisplay = new Class({
     options: {
         element: null,
         actions: {},
+        locale: "",
         dateformat: "%Y-%m-%d %H:%M:%S",
         count: 5,
         template: "TweetDisplay.html",
@@ -56,6 +57,10 @@ var TweetDisplay = new Class({
                 console.log(e);
             }
             return;
+        }
+
+        if (Locale) {
+            Locale.use(this.options.locale || document.getElement("html").get("lang") || "en-US");
         }
 
         var sReqURL = "http://api.twitter.com/1/statuses/user_timeline/" + this.options.username + ".json",
