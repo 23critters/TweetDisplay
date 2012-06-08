@@ -29,7 +29,10 @@ var TweetDisplay = new Class({
     Implements: Options,
     options: {
         element: null,
-        actions: {},
+        actions: {
+            "text": "linkify",
+            "created_at": "formatdate"
+        },
         locale: "",
         dateformat: "%Y-%m-%d %H:%M:%S",
         count: 5,
@@ -41,6 +44,9 @@ var TweetDisplay = new Class({
      @this {TweetDisplay}
      @throws {String} If this.element can't be found, throw error
      @param {Array} Options for behaviours of the displaying of tweets
+     @throws {Exception} Console.logs any error messages
+     @author Thomas Kunambi
+     @version 1.0
      */
     initialize: function(options) {
         this.setOptions(options);
@@ -52,6 +58,9 @@ var TweetDisplay = new Class({
             if (!this.options.username.trim()) {
                 throw("Must set a username");
             }
+			if (Locale && this.options.locale) {
+				Locale.use(this.options.locale || document.getElement("html").get("lang") || "en-US");
+			}
         } catch(e) {
             if (console) {
                 console.log(e);
@@ -59,59 +68,139 @@ var TweetDisplay = new Class({
             return;
         }
 
-        if (Locale) {
-            Locale.use(this.options.locale || document.getElement("html").get("lang") || "en-US");
-        }
-
-        var sReqURL = "http://api.twitter.com/1/statuses/user_timeline/" + this.options.username + ".json",
-            oQuery = Object.filter({"count": this.options.count}, function(value, key) {
+        var oSettings = {
+                "API": "http://api.twitter.com/1/statuses/user_timeline/",
+                "twtrKey": "JSONP.",
+                "htmlKey": "HTML."
+            },
+            sReqURL = oSettings.API + this.options.username + ".json",
+            oQuery = Object.filter({"count": this.options.count}, function(value) {
                 return value;
             }),
-            TwitterJSONP = new Request.JSONP({
-                url: sReqURL,
-                data: oQuery,
-                link: "chain",
-                callbackKey: "callback",
-                onComplete: function(jsonp) {
-                    new Request({
-                        url: this.options.template,
-                        onSuccess: function(html) {
-                            this._parse(html, jsonp);
+            sEntireURL = sReqURL + "?" + Object.toQueryString(oQuery),
+            reqTwtr = null,
+            reqTmpl = new Request({
+                url: this.options.template,
+                onSuccess: function(sHTML) {
+                    reqTwtr = new Request.JSONP({
+                        url: sReqURL,
+                        data: oQuery,
+                        link: "chain",
+                        callbackKey: "callback",
+                        onComplete: function(oJSONP) {
+                            this.set_cache(oSettings.twtrKey + sEntireURL, JSON.encode(oJSONP));
+                            this._parse(sHTML, oJSONP);
                         }.bind(this)
-                    }).send();
-                }.bind(this)
-            });
+                    });
+                    this.set_cache(oSettings.htmlKey + this.options.template, sHTML);
 
-        TwitterJSONP.send(oQuery);
+                    if (this.in_cache(oSettings.twtrKey + sEntireURL)) {
+                        this._parse(sHTML, JSON.decode(sessionStorage.getItem(oSettings.twtrKey + sEntireURL)));
+                    } else {
+                        reqTwtr.send();
+                    }
+                }.bind(this)
+           });
+
+        if (this.in_cache(oSettings.htmlKey + this.options.template)) {
+            this._parse(sessionStorage.getItem(oSettings.htmlKey + this.options.template), JSON.decode(sessionStorage.getItem(oSettings.twtrKey + sEntireURL)));
+        } else {
+            reqTmpl.send();
+        }
     },
     /**
-    @protected
-    */
+     @protected
+     @return {void}
+     @description traverses the json-data and replaces the occurances it finds in the HTML template
+     @param {String} HTML template
+     @param {Object} JSONP-data from Twitters API
+     */
     _parse: function(template, jsonp) {
-        var reTag = /[{]{2}\s*([a-zA-Z0-9._\-]+)\s*[}]{2}/mig,
+        var regTag = /[{]{2}\s*([a-zA-Z0-9._\-]+)\s*[}]{2}/mig,
             oUL = new Element("ul");
 
         Object.each(jsonp, function(oTweet) {
+            var oNestedObjects = Object.filter(oTweet, function(value) {
+                    return typeOf(value) === "object";
+                });
+
+            if (Object.getLength(oNestedObjects)) {
+                Object.each(oNestedObjects, function(oNestedValues, oName) {
+                    Object.each(oNestedValues, function(value, key) {
+                        oTweet[oName + "." + key] = value;
+                    });
+                });
+            }
             oTweet = this._doAction(oTweet);
-            var sParsedHTML = template.substitute(oTweet, reTag);
+            var sParsedHTML = template.substitute(oTweet, regTag);
             oUL.set("html", oUL.get("html") + sParsedHTML);
         }, this);
         document.id(this.element).adopt(oUL);
     },
+    /**
+     @protected
+     @return {Object}
+     @description returns the passed object - but parsed through another method, or untouched if no method exists
+     @param {Object} object to be parsed through any other method
+     @since 0.9.9
+     */
     _doAction: function(oObj) {
-        Object.each(this.options.actions, function(key, action) {
+        Object.each(this.options.actions, function(action, key) {
             if (typeOf(this[action]) === "function") {
                 oObj[key] = this[action](oObj[key]);
             }
         }, this);
         return oObj;
     },
+    /**
+     @public
+     @return {void}
+     @description add new item with unique key to sessionStorage
+     @param {String} a URL
+     @param {String} serialised JSON object
+     @since 1.0
+     */
+    set_cache: function(sURL, sJSON) {
+        sessionStorage.setItem(sURL, sJSON);
+    },
+    /**
+     @public
+     @return {Boolean}
+     @description check wether the key exists in the sessionStorage
+     @param {String} a URL, used as a key
+     @since 1.0
+     */
+    in_cache: function(sURL) {
+        return sessionStorage.getItem(sURL) !== null;
+	},
+    /**
+     @public
+     @return {void}
+     @description clears the sessionStorage
+     @since 1.0
+     */
+    clear_cache: function() {
+        sessionStorage.clear();
+    },
+    /**
+     @public
+     @return {String}
+     @description takes string and returns http://, ftp://, file:// clickable. Also @usernames and #tags
+     @since 0.9.9
+     */
     linkify: function(sText) {
-        sText = sText.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" rel="external">$1</a>');
+        sText = sText.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/mig, '<a href="$1" rel="external">$1</a>');
         sText = sText.replace(/(^|\s)@(\w+)/g, '$1@<a href="http://www.twitter.com/$2">$2</a>');
         sText = sText.replace(/(^|\s)#(\w+)/g, '$1#<a href="http://www.twitter.com/search/$2">$2</a>');
         return sText;
     },
+    /**
+     @public
+     @return {String}
+     @description formats date according to specification
+     @see http://mootools.net/docs/more/Types/Date#Date:format
+     @since 0.9.9
+     */
     formatdate: function(sDate, sFormat) {
         var sNewFormat = sFormat||this.options.dateformat,
             dDate = Date.parse(sDate);

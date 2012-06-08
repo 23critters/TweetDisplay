@@ -3,21 +3,31 @@
 <head>
 <title>Tweet Display</title>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.4/mootools-yui-compressed.js"></script>
-<script type="text/javascript" src="https://raw.github.com/mootools/mootools-more/master/Source/Request/Request.JSONP.js"></script>
-<script type="text/javascript" src="https://raw.github.com/mootools/mootools-more/master/Source/Types/Date.js"></script>
+<script type="text/javascript" src="mootools-more-1.4.0.1.js"></script>
 <script type="text/javascript" src="TweetDisplay.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 window.addEvent("domready", function() {
-	new TweetDisplay({
-		count: 4,
+	var t1 = new TweetDisplay({
+		count: 1,
 		element: "listtweet",
 		username: "23critters",
-		actions: {
-			"linkify": "text",
-			"formatdate": "created_at"
-		},
-		template: "TweetDisplay.html"
+        dateformat: "%H:%M",
+		template: "TweetDisplay.html",
+        actions: {
+            "created_at": "formatdate"
+        }
+    });
+	var t2 = new TweetDisplay({
+		count: 1,
+		element: "listtweet-2",
+		username: "23critters",
+		template: "TweetDisplay.html",
+        actions: {
+            "created_at": "formatdate",
+            "text": "linkify",
+            "user.url": "linkify"
+        }
 	});
 });
 //]]>
@@ -26,6 +36,7 @@ window.addEvent("domready", function() {
 <body>
 
 	<div id="listtweet"></div>
+	<div id="listtweet-2"></div>
 
 </body>
 </html>
