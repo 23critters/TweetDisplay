@@ -44,7 +44,7 @@ var TweetDisplay = new Class({
      @this {TweetDisplay}
      @throws {String} If this.element can't be found, throw error
      @param {Array} Options for behaviours of the displaying of tweets
-     @throws {Exception} Console.logs any error messages
+     @throws {Error} Console.logs any error messages
      @author Thomas Kunambi
      @version 1.0
      */
@@ -58,6 +58,9 @@ var TweetDisplay = new Class({
             if (!this.options.username.trim()) {
                 throw("Must set a username");
             }
+            /**
+             * @since 0.9
+             */
 			if (Locale && this.options.locale) {
 				Locale.use(this.options.locale || document.getElement("html").get("lang") || "en-US");
 			}
@@ -114,6 +117,7 @@ var TweetDisplay = new Class({
      @description traverses the json-data and replaces the occurances it finds in the HTML template
      @param {String} HTML template
      @param {Object} JSONP-data from Twitters API
+     @since 0.1
      */
     _parse: function(template, jsonp) {
         var regTag = /[{]{2}\s*([a-zA-Z0-9._\-]+)\s*[}]{2}/mig,
@@ -142,7 +146,7 @@ var TweetDisplay = new Class({
      @return {Object}
      @description returns the passed object - but parsed through another method, or untouched if no method exists
      @param {Object} object to be parsed through any other method
-     @since 0.9.9
+     @since 0.8
      */
     _doAction: function(oObj) {
         Object.each(this.options.actions, function(action, key) {
@@ -186,7 +190,7 @@ var TweetDisplay = new Class({
      @public
      @return {String}
      @description takes string and returns http://, ftp://, file:// clickable. Also @usernames and #tags
-     @since 0.9.9
+     @since 0.8
      */
     linkify: function(sText) {
         sText = sText.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/mig, '<a href="$1" rel="external">$1</a>');
@@ -199,7 +203,7 @@ var TweetDisplay = new Class({
      @return {String}
      @description formats date according to specification
      @see http://mootools.net/docs/more/Types/Date#Date:format
-     @since 0.9.9
+     @since 0.8
      */
     formatdate: function(sDate, sFormat) {
         var sNewFormat = sFormat||this.options.dateformat,

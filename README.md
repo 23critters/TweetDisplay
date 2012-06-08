@@ -68,18 +68,18 @@ Version 1.0
     * Enabled parsing of nested objects. Eg, use can use {{ user.id }} in order to print the user-id
         * Please note: the option "actions" has had its keys places switched to [field_to_parse]:[method_to_call]
 
-Version 0.9.9.1
+Version 0.9
 
 	* Added ability to format date according to chosen Locale
 	* Note: I will increment version number to 1.0 when I've resolved bug #1
 
-Version 0.9.9
+Version 0.8
 
 	* Added the ability to send information from the JSON/P response to various methods, at this time there's only "linkify" and "formatdate"
 	* Added option to allow formation of dates
 	* Tweet texts should be linkable. URL, #tags and @usernames
 
-Version 0.9
+Version 0.1
 
     * First version
 
