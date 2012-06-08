@@ -62,6 +62,10 @@ Known bugs that hopefully will be squashed in future releases
 
 Notes
 ===========
+Version 1.1
+
+	* Incremented version number just to force Mootools Forge to display latest commit
+
 Version 1.0
 
     * Added cache! Will use sessionStorage in order to cache various requests when applicable.
