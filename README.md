@@ -7,7 +7,7 @@ remember that the template's HTML is looped. All data is transfered in JSON/P.
 Bundled with custom built mootools-more
 
 How to use
-----------
+-----------------
 
 Javascript snippet to initialize the class:
 
@@ -61,7 +61,7 @@ Known bugs that hopefully will be squashed in future releases
 
 
 Notes
------------------
+===========
 Version 1.0
 
     * Added cache! Will use sessionStorage in order to cache various requests when applicable.
@@ -82,3 +82,13 @@ Version 0.9.9
 Version 0.9
 
     * First version
+
+
+Wish list
+-----------------
+
+Future features I'd like to implement
+
+	* Make this class stand-alone from Twitter
+
+
