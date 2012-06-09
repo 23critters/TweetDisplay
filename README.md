@@ -4,7 +4,7 @@ Tweet Display
 Tweet Display is a nifty widget, written in MooTools framework, that allows you to pull information via Twitters API
 about a certain user. Presents the tweets in a UL-list. You may template the output however you want. However, please
 remember that the template's HTML is looped. All data is transfered in JSON/P.
-Bundled with custom built mootools-more
+Download custom built mootools-more from http://mootools.net/more/8b71d9032491a52b5b31d4323243a5c3
 
 How to use
 -----------------
