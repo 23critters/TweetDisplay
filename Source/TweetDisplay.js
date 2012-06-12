@@ -84,6 +84,7 @@ var TweetDisplay = new Class({
             reqTwtr = null,
             reqTmpl = new Request({
                 url: this.options.template,
+				method: "get",
                 onSuccess: function(sHTML) {
                     reqTwtr = new Request.JSONP({
                         url: sReqURL,

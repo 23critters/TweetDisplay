@@ -62,6 +62,10 @@ Known bugs that hopefully will be squashed in future releases
 
 Notes
 ===========
+Version 1.2
+
+	* Changed method of the request for the HTML template to "get" instead of "post". POST issued error 405 sometimes.
+
 Version 1.1
 
 	* Incremented version number just to force Mootools Forge to display latest commit
