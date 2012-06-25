@@ -36,6 +36,8 @@ var TweetDisplay = new Class({
         locale: "",
         dateformat: "%Y-%m-%d %H:%M:%S",
         count: 5,
+		cachetimer: 60 * 60,
+        cachekey: "cache_expires",
         template: "TweetDisplay.html",
         username: "23critters"
     },
@@ -71,12 +73,14 @@ var TweetDisplay = new Class({
             return;
         }
 
-        var oSettings = {
-                "API": "http://api.twitter.com/1/statuses/user_timeline/",
-                "twtrKey": "JSONP.",
-                "htmlKey": "HTML."
-            },
-            sReqURL = oSettings.API + this.options.username + ".json",
+        this.settings = {
+			"API": "http://api.twitter.com/1/statuses/user_timeline/",
+            "NS": "TweetDisplay.",
+			"twtrKey": "JSONP.",
+			"htmlKey": "HTML."
+		};
+
+		var sReqURL = this.settings.API + this.options.username + ".json",
             oQuery = Object.filter({"count": this.options.count}, function(value) {
                 return value;
             }),
@@ -92,22 +96,36 @@ var TweetDisplay = new Class({
                         link: "chain",
                         callbackKey: "callback",
                         onComplete: function(oJSONP) {
-                            this.set_cache(oSettings.twtrKey + sEntireURL, JSON.encode(oJSONP));
+                            this.set_cache(this.settings.twtrKey + this.options.cachekey + sEntireURL, JSON.encode(oJSONP));
                             this._parse(sHTML, oJSONP);
                         }.bind(this)
                     });
-                    this.set_cache(oSettings.htmlKey + this.options.template, sHTML);
+                    this.set_cache(this.settings.htmlKey + this.options.cachekey + this.options.template, sHTML);
 
-                    if (this.in_cache(oSettings.twtrKey + sEntireURL)) {
-                        this._parse(sHTML, JSON.decode(sessionStorage.getItem(oSettings.twtrKey + sEntireURL)));
+                    if (this.in_cache(this.settings.twtrKey + this.options.cachekey + sEntireURL)) {
+                        this._parse(sHTML, JSON.decode(sessionStorage.getItem(this.settings.twtrKey + this.options.cachekey + sEntireURL)));
                     } else {
                         reqTwtr.send();
                     }
                 }.bind(this)
-           });
+            });
 
-        if (this.in_cache(oSettings.htmlKey + this.options.template)) {
-            this._parse(sessionStorage.getItem(oSettings.htmlKey + this.options.template), JSON.decode(sessionStorage.getItem(oSettings.twtrKey + sEntireURL)));
+
+        if (this.in_cache(this.settings.NS + this.options.cachekey)) {
+            var dNow = +new Date(),
+                dCache = Date.parse(sessionStorage.getItem(this.settings.NS + this.options.cachekey)).get("time");
+
+            if (dNow > dCache) {
+                this.clear_cache();
+            }
+        } else {
+            var dExpire = new Date();
+            dExpire.increment("second", this.options.cachetimer);
+            this.set_cache(this.settings.NS + this.options.cachekey, dExpire.toISOString());
+        }
+
+        if (this.in_cache(this.settings.htmlKey + this.options.cachekey + this.options.template)) {
+            this._parse(sessionStorage.getItem(this.settings.htmlKey + this.options.cachekey + this.options.template), JSON.decode(sessionStorage.getItem(this.settings.twtrKey + this.options.cachekey + sEntireURL)));
         } else {
             reqTmpl.send();
         }
@@ -175,8 +193,8 @@ var TweetDisplay = new Class({
      @param {String} a URL, used as a key
      @since 1.0
      */
-    in_cache: function(sURL) {
-        return sessionStorage.getItem(sURL) !== null;
+    in_cache: function(sKey) {
+        return sessionStorage.getItem(sKey) !== null;
 	},
     /**
      @public
@@ -185,7 +203,15 @@ var TweetDisplay = new Class({
      @since 1.0
      */
     clear_cache: function() {
-        sessionStorage.clear();
+		Object.each(sessionStorage, function(value, key) {
+			if (
+				key.indexOf(this.settings.twtrKey + this.options.cachekey) === 0 ||
+				key.indexOf(this.settings.htmlKey + this.options.cachekey) === 0 ||
+                key.indexOf(this.settings.NS + this.options.cachekey) === 0
+                ) {
+				sessionStorage.removeItem(key);
+			}
+		}, this);
     },
     /**
      @public
